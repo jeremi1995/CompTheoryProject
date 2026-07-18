@@ -1,0 +1,16 @@
+{
+    "should_accept": [
+        "a",
+        "abbab",
+        "bb",
+        "ba",
+        "babbaabbababababbaabaaaa"
+    ],
+    "should_reject": [
+        "",
+        "b",
+        "bc",
+        "bac",
+        "ac"
+    ]
+}
