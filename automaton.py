@@ -63,7 +63,7 @@ class Automaton:
         
     
     def display_state_out_transitions_map(self):
-        print(f"{self.type.value} Initialized: Automaton state-out-transitions map:")
+        print(f"{self.type.value} Initialized: Automaton state to out-transitions map:")
         for key, transitionList in self.state_out_transitions_map.items():
             print(f"{key}: {[x.to_string() for x in transitionList]}")
 
