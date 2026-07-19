@@ -1,5 +1,5 @@
 # Computational Theory Project
-Owner: Duc Anh (Jeremy) Duong
+Author: Duc Anh (Jeremy) Duong
 
 ## How to run:
 1. Install python
