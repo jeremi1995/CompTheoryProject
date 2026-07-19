@@ -1,35 +1,36 @@
 from test_case import TestCase
+from automaton import AutomatonResult
 
 def get_test_cases_dfa():
     return [
         # Should accept
-        TestCase("DFA_1", "a", True),
-        TestCase("DFA_2", "abbab", True),
-        TestCase("DFA_3", "bb", True),
-        TestCase("DFA_4", "ba", True),
-        TestCase("DFA_5", "babbaabbababababbaabaaaa", True),
+        TestCase("DFA_1", "a", AutomatonResult.ACCEPT),
+        TestCase("DFA_2", "abbab", AutomatonResult.ACCEPT),
+        TestCase("DFA_3", "bb", AutomatonResult.ACCEPT),
+        TestCase("DFA_4", "ba", AutomatonResult.ACCEPT),
+        TestCase("DFA_5", "babbaabbababababbaabaaaa", AutomatonResult.ACCEPT),
 
         # Should reject
-        TestCase("DFA_6", "", False),
-        TestCase("DFA_7", "b", False),
-        TestCase("DFA_8", "bc", False),
-        TestCase("DFA_9", "bac", False),
-        TestCase("DFA_10", "ac", False),
+        TestCase("DFA_6", "", AutomatonResult.REJECT),
+        TestCase("DFA_7", "b", AutomatonResult.REJECT),
+        TestCase("DFA_8", "bc", AutomatonResult.REJECT),
+        TestCase("DFA_9", "bac", AutomatonResult.REJECT),
+        TestCase("DFA_10", "ac", AutomatonResult.REJECT),
     ]
 
 def get_test_cases_nfa():
     return [
         # Should accept
-        TestCase("NFA_1", "aa", True),
-        TestCase("NFA_2", "ba", True),
-        TestCase("NFA_3", "baa", True),
-        TestCase("NFA_4", "abaaabbbabb", True),
-        TestCase("NFA_5", "bbbbba", True),
+        TestCase("NFA_1", "aa", AutomatonResult.ACCEPT),
+        TestCase("NFA_2", "ba", AutomatonResult.ACCEPT),
+        TestCase("NFA_3", "baa", AutomatonResult.ACCEPT),
+        TestCase("NFA_4", "abaaabbbabb", AutomatonResult.ACCEPT),
+        TestCase("NFA_5", "bbbbba", AutomatonResult.ACCEPT),
 
         # Should reject
-        TestCase("DFA_6", "b", False),
-        TestCase("DFA_7", "a", False),
-        TestCase("DFA_8", "baabaa", False),
-        TestCase("DFA_9", "bbbbaa", False),
-        TestCase("DFA_10", "aaa", False),
+        TestCase("DFA_6", "b", AutomatonResult.REJECT),
+        TestCase("DFA_7", "a", AutomatonResult.REJECT),
+        TestCase("DFA_8", "baabaa", AutomatonResult.REJECT),
+        TestCase("DFA_9", "bbbbaa", AutomatonResult.REJECT),
+        TestCase("DFA_10", "aaa", AutomatonResult.REJECT),
     ]
