@@ -11,8 +11,8 @@ def run_tests(automaton: Automaton, test_cases: list[TestCase]):
     test_results = []
     for test_case in test_cases:
         dfa_result = automaton.process_input(test_case.input_string)
-        test_result = "PASSED" if dfa_result == test_case.expected_result else "FAILED"
-        test_results.append((test_case.case_id, test_case.input_string, test_case.expected_result.value, dfa_result.value, test_result))
+        test_result = "PASSED" if dfa_result[0] == test_case.expected_result else "FAILED"
+        test_results.append((test_case.case_id, test_case.input_string, test_case.expected_result.value, dfa_result[0].value, test_result, dfa_result[1]))
     return test_results
 
 def display_tests_result(test_results: list):
@@ -22,9 +22,10 @@ def display_tests_result(test_results: list):
         erc = "green" if test_result[2] == AutomatonResult.ACCEPT.value else "red"
         arc = "green" if test_result[3] == AutomatonResult.ACCEPT.value else "red"
 
-        print(f"[{color_text(trc, test_result[4])}] TestId: {color_text("yellow", test_result[0])} | InputString: {color_text("yellow", test_result[1])}")
-        print(f"  Expected : {color_text(erc, test_result[2])}")
-        print(f"  Actual   : {color_text(arc, test_result[3])}")
+        print(f"[{color_text(trc, test_result[4])}] TestId: {color_text("yellow", test_result[0])} | InputString: {color_text("yellow", f"\"{test_result[1]}\"")}")
+        print(f"  Expected  : {color_text(erc, test_result[2])}")
+        print(f"  Actual    : {color_text(arc, test_result[3])}")
+        print(f"  State-seq : {color_text("yellow", test_result[5])}")
 
 def test_dfa():
     # Construct the DFA and validate it

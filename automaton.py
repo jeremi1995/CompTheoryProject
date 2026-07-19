@@ -42,8 +42,11 @@ class Automaton:
     state_name_set = set[str]
     transitions: list[Transition]
     alphabet: set[str]
-    state_out_transitions_map: dict[str, set[Transition]]
+    st_map: dict[str, set[Transition]]
+    s_map: dict[str, set[State]]
     type: AutomatonType
+    _start_state: State
+    _accept_states: set[str]
 
     # constructor
     def __init__(self, states: list[State], transitions: list[Transition], alphabet: set[str], type: AutomatonType):
@@ -52,19 +55,30 @@ class Automaton:
         self.transitions = transitions
         self.alphabet = alphabet
         self.type = type
-        self.state_out_transitions_map = self._gen_state_out_transitions_map()
-        self.display_state_out_transitions_map()
+        self._start_state = [x for x in self.states if x.type == StateType.START][0]
+        self._accept_states = set([x.name for x in self.states if x.type == StateType.ACCEPT])
+        self.s_map = self._gen_s_map()
+        self.st_map = self._gen_st_map()
+        self.display_st_map()
 
-    def _gen_state_out_transitions_map(self):
+    def _gen_st_map(self):
         resultingMap = {}
         for state in self.states:
             resultingMap[state.name] = [x for x in self.transitions if x.start == state.name]
         return resultingMap
+    
+    def _gen_s_map(self):
+        resultingMap = {}
+        for state in self.states:
+            resultingMap[state.name] = state
+        return resultingMap
         
     
-    def display_state_out_transitions_map(self):
-        print(f"{self.type.value} Initialized: Automaton state to out-transitions map:")
-        for key, transitionList in self.state_out_transitions_map.items():
+    def display_st_map(self):
+        print(f"{self.type.value} Initialized: Automaton states and out-transitions map:")
+        print(f"Start state: {self._start_state}")
+        print(f"Accept states: {self._accept_states}")
+        for key, transitionList in self.st_map.items():
             print(f"{key}: {[x.to_string() for x in transitionList]}")
 
     def display_automaton(self):
@@ -77,6 +91,30 @@ class Automaton:
             print(f"Transition({transition.to_string()})")
         print("------------------")
 
-    def process_input(self, inputString: str):
-        # Add code here to walk the input
-        return AutomatonResult.ACCEPT
+    def _walk_dfa_with_input(self, input_string: str):
+        current_state = self._start_state
+        state_sequence = [current_state.name]
+        for c in input_string:
+            possible_transitions = self.st_map[current_state.name]
+            valid_transition = next((x for x in possible_transitions if c in x.symbols), None)
+            if valid_transition == None:
+                return (AutomatonResult.REJECT, state_sequence)
+            print(f"valid transition: {valid_transition.to_string()}")
+            current_state = self.s_map[valid_transition.end]
+            print(f"toState: {current_state.name}")
+            state_sequence.append(current_state.name)
+
+        # after traversing the input, accept if current state is an accept state
+        if (current_state.name in self._accept_states):
+            return (AutomatonResult.ACCEPT, state_sequence)
+        else:
+            return (AutomatonResult.REJECT, state_sequence)
+
+    def _walk_nfa_with_input(self, input_string: str):
+        return (AutomatonResult.ACCEPT, [])
+
+    def process_input(self, input_string: str):
+        if self.type == AutomatonType.DFA:
+            return self._walk_dfa_with_input(input_string)
+        elif self.type == AutomatonType.NFA:
+            return self._walk_nfa_with_input(input_string)

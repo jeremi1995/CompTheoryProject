@@ -23,7 +23,7 @@ def validate_dfa(automaton: Automaton):
     # At every state, there's exactly 1 outgoing transition for each symbol of the alphabet
     transition_duplications = []
     missing_transitions = []
-    for stateName, stateTransitions in automaton.state_out_transitions_map.items():
+    for stateName, stateTransitions in automaton.st_map.items():
         for symbol in automaton.alphabet:
             transitions_for_symbol = []
             for transition in stateTransitions:
