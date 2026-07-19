@@ -38,44 +38,45 @@ class State:
 
 class Automaton:
     # a state is a tuple of the state
-    _states = list[State]
-    _state_name_set = set[str]
-    _transitions: list[Transition]
-    _alphabet: set[str]
-    _state_out_transitions_map: dict[str, set[Transition]]
-    _type: AutomatonType
+    states = list[State]
+    state_name_set = set[str]
+    transitions: list[Transition]
+    alphabet: set[str]
+    state_out_transitions_map: dict[str, set[Transition]]
+    type: AutomatonType
 
     # constructor
     def __init__(self, states: list[State], transitions: list[Transition], alphabet: set[str], type: AutomatonType):
-        self._states = states
-        self._state_name_set = set([x.name for x in self._states])
-        self._transitions = transitions
-        self._alphabet = alphabet
-        self._type = type
-        self._state_out_transitions_map = self._gen_state_out_transitions_map()
+        self.states = states
+        self.state_name_set = set([x.name for x in self.states])
+        self.transitions = transitions
+        self.alphabet = alphabet
+        self.type = type
+        self.state_out_transitions_map = self._gen_state_out_transitions_map()
         self.display_state_out_transitions_map()
 
     def _gen_state_out_transitions_map(self):
         resultingMap = {}
-        for state in self._states:
-            resultingMap[state.name] = [x for x in self._transitions if x.start == state.name]
+        for state in self.states:
+            resultingMap[state.name] = [x for x in self.transitions if x.start == state.name]
         return resultingMap
         
     
     def display_state_out_transitions_map(self):
         print("Init: Automaton state-out-transitions map:")
-        for key, transitionList in self._state_out_transitions_map.items():
+        for key, transitionList in self.state_out_transitions_map.items():
             print(f"{key}: {[x.to_string() for x in transitionList]}")
 
     def display_automaton(self):
         print("---- Automaton ----")
         print("-- States --")
-        for state in self._states:
+        for state in self.states:
             print(f"State({state.name}, {state.type})")
         print("-- Transitions --")
-        for transition in self._transitions:
+        for transition in self.transitions:
             print(f"Transition({transition.to_string()})")
         print("------------------")
 
     def process_input(self, inputString: str):
+        # Add code here to walk the input
         return AutomatonResult.ACCEPT
