@@ -1,5 +1,7 @@
 from enum import Enum
 
+DEAD_STATE = "qDead"
+
 class AutomatonResult(Enum):
     ACCEPT = "ACCEPT"
     REJECT = "REJECT"
@@ -36,6 +38,17 @@ class State:
         self.name = name
         self.type = type
 
+class NFAExecutionBranch:
+    index: int
+    state_sequence: list[str]
+    remaining_input: str
+    halted: bool
+    def __init__(self, index: int, state_sequence: list[str], remaining_input: str, halted: bool):
+        self.index = index
+        self.state_sequence = state_sequence
+        self.remaining_input = remaining_input
+        self.halted = halted
+
 class Automaton:
     # a state is a tuple of the state
     states = list[State]
@@ -43,9 +56,9 @@ class Automaton:
     transitions: list[Transition]
     alphabet: set[str]
     st_map: dict[str, set[Transition]]
-    s_map: dict[str, set[State]]
+    s_map: dict[str, State]
     type: AutomatonType
-    _start_state: State
+    start_state: State
     _accept_states: set[str]
 
     # constructor
@@ -55,7 +68,7 @@ class Automaton:
         self.transitions = transitions
         self.alphabet = alphabet
         self.type = type
-        self._start_state = [x for x in self.states if x.type == StateType.START][0]
+        self.start_state = next((x for x in self.states if x.type == StateType.START), None)
         self._accept_states = set([x.name for x in self.states if x.type == StateType.ACCEPT])
         self.s_map = self._gen_s_map()
         self.st_map = self._gen_st_map()
@@ -76,7 +89,6 @@ class Automaton:
     
     def display_st_map(self):
         print(f"{self.type.value} Initialized: Automaton states and out-transitions map:")
-        print(f"Start state: {self._start_state}")
         print(f"Accept states: {self._accept_states}")
         for key, transitionList in self.st_map.items():
             print(f"{key}: {[x.to_string() for x in transitionList]}")
@@ -92,16 +104,14 @@ class Automaton:
         print("------------------")
 
     def _walk_dfa_with_input(self, input_string: str):
-        current_state = self._start_state
+        current_state = self.start_state
         state_sequence = [current_state.name]
         for c in input_string:
             possible_transitions = self.st_map[current_state.name]
             valid_transition = next((x for x in possible_transitions if c in x.symbols), None)
             if valid_transition == None:
                 return (AutomatonResult.REJECT, state_sequence)
-            print(f"valid transition: {valid_transition.to_string()}")
             current_state = self.s_map[valid_transition.end]
-            print(f"toState: {current_state.name}")
             state_sequence.append(current_state.name)
 
         # after traversing the input, accept if current state is an accept state
@@ -111,7 +121,83 @@ class Automaton:
             return (AutomatonResult.REJECT, state_sequence)
 
     def _walk_nfa_with_input(self, input_string: str):
-        return (AutomatonResult.ACCEPT, [])
+        # Initialize the process with 1 execution branch and a sequence containing start state
+        # Branch tupple: (index, current_state_sequence, remaining_input, branch has halted)
+        execution_branches = [NFAExecutionBranch(0, [self.start_state.name], input_string, False)]
+        all_branch_halted = False
+        branch_index = 0
+
+        while not all_branch_halted:
+            new_branches_to_add = []
+            for branch in execution_branches:
+                # Only proceed if branch has not halted
+                if not branch.halted:
+                    c = None if len(branch.remaining_input) == 0 else branch.remaining_input[0]
+                    current_state_name = branch.state_sequence[-1] # last state in the state sequence is the current state
+                    
+                    # Look at all possible transitions:
+                    out_transitions = self.st_map[current_state_name]
+                    
+                    # It's possible to have multiple valid transitions:
+                    valid_transitions = [x for x in out_transitions if ((not c == None) and (c in x.symbols)) or "eps" in x.symbols]
+                    vt_length = len(valid_transitions)
+
+                    # If there's no more input:
+                    if c == None:
+                        branch.halted = True
+                        if vt_length > 0:
+                            for vt in valid_transitions:
+                                for symbol in vt.symbols:
+                                    # epsilon check here is kinda redundant, but safe than sorry
+                                    if symbol == "eps":
+                                        branch_index += 1
+                                        new_state_sequence = branch.state_sequence + [vt.end]
+                                        new_branches_to_add.append(NFAExecutionBranch(branch_index, new_state_sequence, branch.remaining_input, False))
+                    else:
+                        if vt_length == 0:
+                            # if there's more input but there's no valid transition,
+                            # that means we're transitioning to a dead state
+                            branch.halted = True
+                            branch.state_sequence.append(DEAD_STATE)
+                        else:
+                            processed_transitions: set[str] = set()
+                            processed_current_branch = False
+                            current_remaining_input_copy = branch.remaining_input
+                            current_state_sequence_copy = branch.state_sequence.copy()
+                            for vt in valid_transitions:
+                                for symbol in vt.symbols:
+                                    transition_key = f"{symbol}|{vt.end}"
+                                    if transition_key not in processed_transitions:
+                                        processed_transitions.add(transition_key)
+                                        # if epsilon, don't consume output, just spawn new branch
+                                        if symbol == "eps":
+                                            branch_index += 1
+                                            new_state_sequence = current_state_sequence_copy + [vt.end]
+                                            new_branches_to_add.append(NFAExecutionBranch(branch_index, new_state_sequence, current_remaining_input_copy, False))
+                                        # double check that we only process the input if the symbol of the transition matches
+                                        elif symbol == c:
+                                            # Use the current branch to process the current transition
+                                            if (not processed_current_branch):
+                                                # make the transition: consume the input, then update state sequence
+                                                branch.remaining_input = branch.remaining_input[1:]
+                                                branch.state_sequence.append(vt.end)
+                                                processed_current_branch = True
+                                            # spawn new branch for all other transitions:
+                                            else:
+                                                # consume the input, then update state sequence, then spawn new branch
+                                                branch_index += 1
+                                                new_state_sequence = current_state_sequence_copy + [vt.end]
+                                                new_remaining_input = current_remaining_input_copy[1:]
+                                                new_branches_to_add.append(NFAExecutionBranch(branch_index, new_state_sequence, new_remaining_input, False))
+            # add new branch
+            execution_branches.extend(new_branches_to_add)
+            all_branch_halted = all(x.halted for x in execution_branches)
+            print(f"branchIndex: {branch_index}")
+
+        successful_branch = next((x for x in execution_branches if x.state_sequence[-1] in self._accept_states), None)
+        if not successful_branch == None:
+            return (AutomatonResult.ACCEPT, successful_branch.state_sequence)
+        return (AutomatonResult.REJECT, [])
 
     def process_input(self, input_string: str):
         if self.type == AutomatonType.DFA:

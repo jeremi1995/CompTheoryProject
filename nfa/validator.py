@@ -6,16 +6,11 @@ def dfa_allowed_symbols(alphabet: set[str]):
 
 def validate_nfa(automaton: Automaton):
     # Has exactly 1 start state
-    # Has a set of accept states
     start_state_count = 0
-    accept_state_count = 0
     for state in automaton.states:
         if state.type == StateType.START:
             start_state_count += 1
-        if state.type == StateType.ACCEPT:
-            accept_state_count += 1
     assert start_state_count == 1, "NFA must have exactly 1 start state!"
-    assert accept_state_count > 0, "NFA must have at least 1 accept state!"
     # Has a defined alphabet
     assert automaton.alphabet != None, "NFA must have an alphabet!"
     # No invalid symbol on transitions, epsilon is allowed

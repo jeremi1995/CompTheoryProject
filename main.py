@@ -4,7 +4,7 @@ from nfa.nfa import construct_jeremy_project_nfa
 from nfa.validator import validate_nfa
 from test_cases.get_test_cases import *
 from test_cases.test_case import TestCase
-from automaton import Automaton
+from automaton import Automaton, StateType
 from util import color_text
 
 def run_tests(automaton: Automaton, test_cases: list[TestCase]):
@@ -25,7 +25,7 @@ def display_tests_result(test_results: list):
         print(f"[{color_text(trc, test_result[4])}] TestId: {color_text("yellow", test_result[0])} | InputString: {color_text("yellow", f"\"{test_result[1]}\"")}")
         print(f"  Expected  : {color_text(erc, test_result[2])}")
         print(f"  Actual    : {color_text(arc, test_result[3])}")
-        print(f"  State-seq : {color_text("yellow", test_result[5])}")
+        print(f"  States    : {color_text("yellow", test_result[5])}")
 
 def test_dfa():
     # Construct the DFA and validate it
@@ -54,8 +54,8 @@ def test_nfa():
 def main():
     print("------TESTING BEGINS-----------------------------------")
     test_dfa()
-    print("-------------------------------------------------------")
-    test_nfa()
+    # print("-------------------------------------------------------")
+    # test_nfa()
     print("----------------------------------TESTING FINISHED!----\n")
 
 

@@ -5,14 +5,10 @@ from automaton import StateType
 def validate_dfa(automaton: Automaton):
     assert automaton.type == AutomatonType.DFA, f"validate_dfa: Cannot validate automaton of type {automaton.type}"
     start_state_count = 0
-    accept_state_count = 0
     for state in automaton.states:
         if state.type == StateType.START:
             start_state_count += 1
-        if state.type == StateType.ACCEPT:
-            accept_state_count += 1
     assert start_state_count == 1, "DFA must have exactly 1 start state!"
-    assert accept_state_count > 0, "DFA must have at least 1 accept state!"
     assert automaton.alphabet != None, "DFA must have an alphabet!"
     # No epsilon transition
     epsilon_transitions = [x.to_string() for x in automaton.transitions if "eps" in x.symbols]
