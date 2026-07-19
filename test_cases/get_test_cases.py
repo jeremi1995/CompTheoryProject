@@ -1,4 +1,4 @@
-from test_case import TestCase
+from test_cases.test_case import TestCase
 from automaton import AutomatonResult
 
 def get_test_cases_dfa():
@@ -28,9 +28,9 @@ def get_test_cases_nfa():
         TestCase("NFA_5", "bbbbba", AutomatonResult.ACCEPT),
 
         # Should reject
-        TestCase("DFA_6", "b", AutomatonResult.REJECT),
-        TestCase("DFA_7", "a", AutomatonResult.REJECT),
-        TestCase("DFA_8", "baabaa", AutomatonResult.REJECT),
-        TestCase("DFA_9", "bbbbaa", AutomatonResult.REJECT),
-        TestCase("DFA_10", "aaa", AutomatonResult.REJECT),
+        TestCase("NFA_6", "b", AutomatonResult.REJECT),
+        TestCase("NFA_7", "a", AutomatonResult.REJECT),
+        TestCase("NFA_8", "baabaa", AutomatonResult.REJECT),
+        TestCase("NFA_9", "bbbbaa", AutomatonResult.REJECT),
+        TestCase("NFA_10", "aaa", AutomatonResult.REJECT),
     ]
