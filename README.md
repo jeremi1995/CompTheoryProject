@@ -1,8 +1,8 @@
 # Computational Theory Project
-Author: Duc Anh (Jeremy) Duong.
+Author: Duc Anh (Jeremy) Duong
 
 ## How to run:
-1. Install python
+1. Install python (version 3.10.x or above)
 2. Run `python main.py` from the project root
 
 ## Content:
