@@ -1,3 +1,4 @@
+# Author: Duc Anh (Jeremy) Duong
 from automaton import AutomatonResult
 
 class TestCase:

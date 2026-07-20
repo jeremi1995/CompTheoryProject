@@ -1,3 +1,4 @@
+# Author: Duc Anh (Jeremy) Duong
 def color_text(color: str, text: str):
     match color:
         case "red":

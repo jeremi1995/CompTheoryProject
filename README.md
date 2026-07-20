@@ -1,5 +1,6 @@
 # Computational Theory Project
 Author: Duc Anh (Jeremy) Duong
+Disclaimer: All source code in this repo is written by me with only a few lines (less than 10) added by AI agent (Claude)
 
 ## How to run:
 1. Install python (version 3.10.x or above)

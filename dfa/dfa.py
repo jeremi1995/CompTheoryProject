@@ -1,3 +1,4 @@
+# Author: Duc Anh (Jeremy) Duong
 from automaton import State
 from automaton import Transition
 from automaton import Automaton

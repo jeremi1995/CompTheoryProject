@@ -1,3 +1,4 @@
+# Author: Duc Anh (Jeremy) Duong
 from dfa.dfa import construct_jeremy_project_dfa
 from dfa.validator import validate_dfa
 from nfa.nfa import construct_jeremy_project_nfa

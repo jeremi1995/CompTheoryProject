@@ -1,3 +1,4 @@
+# Author: Duc Anh (Jeremy) Duong
 from enum import Enum
 
 DEAD_STATE = "qDead"

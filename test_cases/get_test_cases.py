@@ -1,3 +1,4 @@
+# Author: Duc Anh (Jeremy) Duong
 from test_cases.test_case import TestCase
 from automaton import AutomatonResult
 

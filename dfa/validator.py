@@ -1,3 +1,4 @@
+# Author: Duc Anh (Jeremy) Duong
 from automaton import Automaton
 from automaton import AutomatonType
 from automaton import StateType
