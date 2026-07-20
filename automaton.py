@@ -126,6 +126,7 @@ class Automaton:
         execution_branches = [NFAExecutionBranch(0, [self.start_state.name], input_string, False)]
         all_branch_halted = False
         branch_index = 0
+        visited: set[tuple[str, str]] = {(self.start_state.name, input_string)}
 
         while not all_branch_halted:
             new_branches_to_add = []
@@ -150,9 +151,12 @@ class Automaton:
                                 for symbol in vt.symbols:
                                     # epsilon check here is kinda redundant, but safe than sorry
                                     if symbol == "eps":
-                                        branch_index += 1
-                                        new_state_sequence = branch.state_sequence + [vt.end]
-                                        new_branches_to_add.append(NFAExecutionBranch(branch_index, new_state_sequence, branch.remaining_input, False))
+                                        key = (vt.end, branch.remaining_input)
+                                        if key not in visited:
+                                            visited.add(key)
+                                            branch_index += 1
+                                            new_state_sequence = branch.state_sequence + [vt.end]
+                                            new_branches_to_add.append(NFAExecutionBranch(branch_index, new_state_sequence, branch.remaining_input, False))
                     else:
                         if vt_length == 0:
                             # if there's more input but there's no valid transition,
@@ -161,7 +165,7 @@ class Automaton:
                             branch.state_sequence.append(DEAD_STATE)
                         else:
                             processed_transitions: set[str] = set()
-                            processed_current_branch = False
+                            current_branch_took_non_eps_transition = False
                             current_remaining_input_copy = branch.remaining_input
                             current_state_sequence_copy = branch.state_sequence.copy()
                             for vt in valid_transitions:
@@ -171,17 +175,20 @@ class Automaton:
                                         processed_transitions.add(transition_key)
                                         # if epsilon, don't consume output, just spawn new branch
                                         if symbol == "eps":
-                                            branch_index += 1
-                                            new_state_sequence = current_state_sequence_copy + [vt.end]
-                                            new_branches_to_add.append(NFAExecutionBranch(branch_index, new_state_sequence, current_remaining_input_copy, False))
+                                            key = (vt.end, current_remaining_input_copy)
+                                            if key not in visited:
+                                                visited.add(key)
+                                                branch_index += 1
+                                                new_state_sequence = current_state_sequence_copy + [vt.end]
+                                                new_branches_to_add.append(NFAExecutionBranch(branch_index, new_state_sequence, current_remaining_input_copy, False))
                                         # double check that we only process the input if the symbol of the transition matches
                                         elif symbol == c:
-                                            # Use the current branch to process the current transition
-                                            if (not processed_current_branch):
+                                            # Use the current branch to process the current non-epsilon transition
+                                            if (not current_branch_took_non_eps_transition):
                                                 # make the transition: consume the input, then update state sequence
                                                 branch.remaining_input = branch.remaining_input[1:]
                                                 branch.state_sequence.append(vt.end)
-                                                processed_current_branch = True
+                                                current_branch_took_non_eps_transition = True
                                             # spawn new branch for all other transitions:
                                             else:
                                                 # consume the input, then update state sequence, then spawn new branch
@@ -189,10 +196,12 @@ class Automaton:
                                                 new_state_sequence = current_state_sequence_copy + [vt.end]
                                                 new_remaining_input = current_remaining_input_copy[1:]
                                                 new_branches_to_add.append(NFAExecutionBranch(branch_index, new_state_sequence, new_remaining_input, False))
+                            if not current_branch_took_non_eps_transition:
+                                branch.halted = True
             # add new branch
             execution_branches.extend(new_branches_to_add)
             all_branch_halted = all(x.halted for x in execution_branches)
-            print(f"branchIndex: {branch_index}")
+            # print(f"branchIndex: {branch_index}")
 
         successful_branch = next((x for x in execution_branches if x.state_sequence[-1] in self._accept_states), None)
         if not successful_branch == None:
